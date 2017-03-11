@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> Instruments </title>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+</head>
+<body>
+
+<!-- beginning of container -->
+<div class = "container">
+
+	<!-- beginning of jumbotron -->
+	<div class = "jumbotron">
+		<h1> Instruments </h1>
+			<div class="row">
+				<div class="col-sm-6">
+					<div class="input-group">
+						<input type="text" id="userSelection" class="form-control" placeholder="Search for...">
+						<span class="input-group-btn">
+							<button id="submit" class ="btn btn-default" type="button">Go!</button>
+						</span>
+					</div>
+				</div>
+			</div>
+	</div>
+
+	<div id="instrumentHome"></div>
+	<!-- end of jumbotron -->
+
+	<div id="imageDump"></div>
+
+</div>
+<!-- end of container -->
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript">
+
+		var instrumentArray = ["guitar", "cello", "viola", "piano", "ukelele"];
+
+
+		function addButtons (){
+			$("#instrumentHome").empty();
+			for (var i = 0; i < instrumentArray.length; i++){
+				var button = $("<button>");
+				button.attr("class", "allTheButtons btn btn-default");
+				button.text(instrumentArray[i]);
+				$("#instrumentHome").append(button);
+			}
+		}
+
+		addButtons();
+
+		$("#submit").on("click", function(event){
+			event.preventDefault();
+			var userInput = $("#userSelection").val()
+			instrumentArray.push(userInput);
+			addButtons();
+		})
+
+
+		$(document).on("click", ".allTheButtons", function(){
+			$("#imageDump").empty();
+			var userSelection = $(this).text();
+			console.log(userSelection);
+			var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + userSelection + "&api_key=dc6zaTOxFJmzC&limit=10";
+				$.ajax({
+					url: queryURL,
+					method: 'GET'
+				}).done(function(response){
+
+						for (var i = 0; i < 10; i++){
+							var imageAndRatingDiv = $("<div>");
+
+							var image = $("<img>");
+							image.attr("src", response.data[i].images.fixed_height_still.url);
+							image.attr("data-status", "still");
+							image.attr("data-still", response.data[i].images.fixed_height_still.url)
+							image.attr("data-active", response.data[i].images.fixed_height.url)
+							imageAndRatingDiv.append(image);
+
+							var rating = $("<p>");
+							rating.text("rating: " + response.data[i].rating);
+							imageAndRatingDiv.append(rating);
+
+							$("#imageDump").append(imageAndRatingDiv);
+
+
+						}
+						
+				})
+
+		})
+
+		$(document).on("click", "img", function(){
+			var status = $(this).attr("data-status");
+
+			if (status === "still") {
+				$(this).attr("src", $(this).attr("data-active"));
+				$(this).attr("data-status", "active");
+			} 
+			else if (status === "active") {
+				$(this).attr("src", $(this).attr("data-still"));
+				$(this).attr("data-status", "still");
+
+			}
+
+
+		})
+		
+
+	</script>
+
+
+
+
+</body>
+</html>
