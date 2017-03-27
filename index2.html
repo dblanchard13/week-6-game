@@ -38,11 +38,33 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script type="text/javascript">
 
+	// While it may not seem imperative for smaller programs, you should get in the habit
+	// linking to a separate js file and also wrapping your js code in either a 
+
+	// $(document).ready(function(){
+	//  // code goes here
+	// })
+
+	// or an IIFE (immediately invoked function expression)
+	// ;(function(){
+	//  // code goes here
+	// })()
+
+	// One of the most important reasons for that is security - because right now your global variables
+	// can be tampered with through the console by a malicious visitor 😮
+
 		var instrumentArray = ["guitar", "cello", "viola", "piano", "ukelele"];
 
 
 		function addButtons (){
+			// camelCasing is totally valid for css class and id names, but the general convention is to use hyphens `-` to separate words
 			$("#instrumentHome").empty();
+
+			// when iterating over the values in an array, feel free to use the native `.forEach` method
+			// one particularly useful side effect of that approach is that it creates a functional context
+			// for each iteration of the loop which helps prevent variables from being attached to the global scope object
+			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+
 			for (var i = 0; i < instrumentArray.length; i++){
 				var button = $("<button>");
 				button.attr("class", "allTheButtons btn btn-default");
@@ -54,8 +76,12 @@
 		addButtons();
 
 		$("#submit").on("click", function(event){
-			event.preventDefault();
+			// you don't actually need this here since your inputs aren't within a <form> element,
+			// so none of the default behavior will trigger a page refresh
+			// event.preventDefault();
 			var userInput = $("#userSelection").val()
+			// a common practice is to remove the user's input from the html once you've retrieved its value
+			$("#userSelection").val('')
 			instrumentArray.push(userInput);
 			addButtons();
 		})
@@ -64,7 +90,9 @@
 		$(document).on("click", ".allTheButtons", function(){
 			$("#imageDump").empty();
 			var userSelection = $(this).text();
-			console.log(userSelection);
+
+			// you generally want to remove console.log statements from production code
+			// console.log(userSelection);
 			var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + userSelection + "&api_key=dc6zaTOxFJmzC&limit=10";
 				$.ajax({
 					url: queryURL,
@@ -97,6 +125,7 @@
 		$(document).on("click", "img", function(){
 			var status = $(this).attr("data-status");
 
+			// nice job using strict equality checking 👌
 			if (status === "still") {
 				$(this).attr("src", $(this).attr("data-active"));
 				$(this).attr("data-status", "active");
